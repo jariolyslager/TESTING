@@ -1,0 +1,4 @@
+name: testing
+run-name: Testing workflow
+on: [push]
+jobs:

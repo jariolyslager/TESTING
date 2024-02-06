@@ -1,0 +1,4 @@
+name: production
+run-name: Production workflow
+on: [push]
+jobs:

@@ -1,0 +1,4 @@
+name: acceptance
+run-name: Acceptance workflow
+on: [push]
+jobs:
