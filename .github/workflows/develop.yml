@@ -16,12 +16,7 @@ jobs:
             with:
                 java-version: '17'
                 distribution: 'temurin'
-                
-          - name: List files in the repository
-            run: |
-                ls ${{ github.workspace }}
-        
-            
+                         
           - name: Setup Gradle
             uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
             with:
@@ -34,4 +29,12 @@ jobs:
         #    if: success() || failure() # always run even if the previous step fails
         #    with:
         #      report_paths: '**/build/test-results/test/TEST-*.xml'
+        
+    files:
+        name: List files
+        runs-on: ubuntu-latest
+        steps:
+          - name: List files in the repository
+            run: |
+                ls ${{ github.workspace }}        
         
