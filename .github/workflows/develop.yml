@@ -2,7 +2,9 @@ name: develop
 run-name: Develop workflow
 on:
     push:
+        branches: [ "!main" ]
     pull_request:
+        branches: [ "!main" ]
     
 jobs:
     build:
@@ -23,6 +25,9 @@ jobs:
                 gradle-version: '8.5'
           - name: Build with Gradle 8.5
             run: gradle build
+            
+          - name: Run Gradle tests
+            run: ./gradlew test
             
         #  - name: Publish Test Report
         #    uses: mikepenz/action-junit-report@v4
