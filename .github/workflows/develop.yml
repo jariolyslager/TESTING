@@ -2,11 +2,12 @@ name: develop
 run-name: Develop workflow
 on:
     push:
-        branches: [ "!main" ]
+        branches: [ "develop" ]
     pull_request:
-        branches: [ "!main" ]
+        branches: [ "develop" ]
     
 jobs:
+    # Build app with gradle and run unit tests
     build:
         name: Build and Run Tests
         runs-on: ubuntu-latest
@@ -28,18 +29,53 @@ jobs:
             
           - name: Run Gradle tests
             run: ./gradlew test
-            
-        #  - name: Publish Test Report
-        #    uses: mikepenz/action-junit-report@v4
-        #    if: success() || failure() # always run even if the previous step fails
-        #    with:
-        #      report_paths: '**/build/test-results/test/TEST-*.xml'
-        
-    files:
-        name: List files
+       
+    
+    analyze:
+    # Analyze vulnerabilities with CodeQL
+        name: Analyze
+        runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+        timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+        permissions:
+          security-events: write
+
+          actions: read
+          contents: read
+
+        strategy:
+          fail-fast: false
+          matrix:
+            language: [ 'java-kotlin' ]
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
+          with:
+            languages: ${{ matrix.language }}
+
+        - name: Autobuild
+          uses: github/codeql-action/autobuild@v3
+
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: "/language:${{matrix.language}}"
+    
+    run-lint:
+    # Check code style with super-linter
         runs-on: ubuntu-latest
         steps:
-          - name: List files in the repository
-            run: |
-                ls ${{ github.workspace }}        
-        
+          - name: Checkout code
+            uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
+
+          - name: Lint Code Base
+            uses: github/super-linter@v4
+            env:
+              VALIDATE_ALL_CODEBASE: false
+              DEFAULT_BRANCH: "main"
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
